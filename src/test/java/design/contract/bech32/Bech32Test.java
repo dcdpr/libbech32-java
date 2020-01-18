@@ -167,18 +167,18 @@ public class Bech32Test {
     public void mapDP_withLowercaseData() {
         HrpAndDp b = Bech32.impl.splitString("1acd");
         Bech32.impl.mapDP(b.getDp());
-        assertEquals(b.getDp()[0], 0x001d);
-        assertEquals(b.getDp()[1], 0x0018);
-        assertEquals(b.getDp()[2], 0x000d);
+        assertEquals(0x001d, b.getDp()[0]);
+        assertEquals(0x0018, b.getDp()[1]);
+        assertEquals(0x000d, b.getDp()[2]);
     }
 
     @Test
     public void mapDP_withUppercaseData() {
         HrpAndDp b = Bech32.impl.splitString("1ACD");
         Bech32.impl.mapDP(b.getDp());
-        assertEquals(b.getDp()[0], 0x001d);
-        assertEquals(b.getDp()[1], 0x0018);
-        assertEquals(b.getDp()[2], 0x000d);
+        assertEquals(0x001d, b.getDp()[0]);
+        assertEquals(0x0018, b.getDp()[1]);
+        assertEquals(0x000d, b.getDp()[2]);
     }
 
     @Test(expected = RuntimeException.class)
@@ -190,51 +190,51 @@ public class Bech32Test {
     @Test
     public void expandHrp_withUppercaseHrp() {
         String e = Bech32.impl.expandHrp("ABC");
-        assertEquals(e.charAt(0), 0x0002);
-        assertEquals(e.charAt(1), 0x0002);
-        assertEquals(e.charAt(2), 0x0002);
-        assertEquals(e.charAt(3), 0x0000);
-        assertEquals(e.charAt(4), 0x0001);
-        assertEquals(e.charAt(5), 0x0002);
-        assertEquals(e.charAt(6), 0x0003);
+        assertEquals(0x0002, e.charAt(0));
+        assertEquals(0x0002, e.charAt(1));
+        assertEquals(0x0002, e.charAt(2));
+        assertEquals(0x0000, e.charAt(3));
+        assertEquals(0x0001, e.charAt(4));
+        assertEquals(0x0002, e.charAt(5));
+        assertEquals(0x0003, e.charAt(6));
     }
 
     @Test
     public void expandHrp_withLowercaseHrp() {
         String e = Bech32.impl.expandHrp("abc");
-        assertEquals(e.charAt(0), 0x0003);
-        assertEquals(e.charAt(1), 0x0003);
-        assertEquals(e.charAt(2), 0x0003);
-        assertEquals(e.charAt(3), 0x0000);
-        assertEquals(e.charAt(4), 0x0001);
-        assertEquals(e.charAt(5), 0x0002);
-        assertEquals(e.charAt(6), 0x0003);
+        assertEquals(0x0003, e.charAt(0));
+        assertEquals(0x0003, e.charAt(1));
+        assertEquals(0x0003, e.charAt(2));
+        assertEquals(0x0000, e.charAt(3));
+        assertEquals(0x0001, e.charAt(4));
+        assertEquals(0x0002, e.charAt(5));
+        assertEquals(0x0003, e.charAt(6));
     }
 
     @Test
     public void polymod_short() {
         String e = Bech32.impl.expandHrp("A");
         long p = Bech32.impl.polymod(e.toCharArray());
-        assertEquals(p, 34817);
+        assertEquals(34817, p);
     }
 
     @Test
     public void polymod_long() {
         String e = Bech32.impl.expandHrp("qwerty");
         long p = Bech32.impl.polymod(e.toCharArray());
-        assertEquals(p, 448484437);
+        assertEquals(448484437, p);
     }
 
     @Test
     public void verifyChecksum_withShortHrp_noData_isGood() {
-        HrpAndDp b = Bech32.impl.splitString("a12uel5l");
+        HrpAndDp b = Bech32.impl.splitString("a14rxqtp");
         Bech32.impl.mapDP(b.getDp());
         assertTrue(Bech32.impl.verifyChecksum(b.getHrp(), b.getDp()));
     }
 
     @Test
     public void verifyChecksum_withLongerHrp_longData_isGood() {
-        HrpAndDp b = Bech32.impl.splitString("abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw");
+        HrpAndDp b = Bech32.impl.splitString("abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lyllles");
         Bech32.impl.mapDP(b.getDp());
         assertTrue(Bech32.impl.verifyChecksum(b.getHrp(), b.getDp()));
     }
@@ -273,15 +273,15 @@ public class Bech32Test {
 
     @Test
     public void createChecksum_simple() {
-        String hrp = "A";
+        String hrp = "a";
         char[] data = new char[0];
         char[] checksum = Bech32.impl.createChecksum(hrp, data).toCharArray();
-        assertEquals(0x0008, checksum[0]);
-        assertEquals(0x001e, checksum[1]);
-        assertEquals(0x0010, checksum[2]);
-        assertEquals(0x0008, checksum[3]);
-        assertEquals(0x000d, checksum[4]);
-        assertEquals(0x0007, checksum[5]);
+        assertEquals(0x0015, checksum[0]);
+        assertEquals(0x0003, checksum[1]);
+        assertEquals(0x0006, checksum[2]);
+        assertEquals(0x0000, checksum[3]);
+        assertEquals(0x000b, checksum[4]);
+        assertEquals(0x0001, checksum[5]);
     }
 
 
@@ -297,7 +297,7 @@ public class Bech32Test {
         String hrp = "a";
         char[] data = new char[0];
         String b = Bech32.encode(hrp, data);
-        assertEquals(b, "a12uel5l");
+        assertEquals("a14rxqtp", b);
     }
 
     @Test(expected = RuntimeException.class)
@@ -400,14 +400,14 @@ public class Bech32Test {
 
     @Test
     public void decode_simple() {
-        HrpAndDp hd = Bech32.decode("a12uel5l");
+        HrpAndDp hd = Bech32.decode("a14rxqtp");
         assertEquals("a", hd.getHrp());
         assertEquals(0, hd.getDp().length);
     }
 
     @Test
     public void decode_longer() {
-        HrpAndDp hd = Bech32.decode("abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw");
+        HrpAndDp hd = Bech32.decode("abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lyllles");
         assertEquals("abcdef", hd.getHrp());
         assertEquals(32, hd.getDp().length);
         assertEquals(0x0000, hd.getDp()[0]); // 'q' in above data part
@@ -416,25 +416,25 @@ public class Bech32Test {
 
     @Test
     public void decodeThenEncode_givesInitialData_1() {
-        String bstr = "abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw";
+        String bstr = "abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lyllles";
 
         HrpAndDp hd = Bech32.decode(bstr);
         assertEquals("abcdef", hd.getHrp());
 
         String enc = Bech32.encode(hd.getHrp(), hd.getDp());
-        assertEquals(bstr, enc, bstr);
+        assertEquals(bstr, enc);
 
     }
 
     @Test
     public void decodeThenEncode_givesInitialData_2() {
-        String bstr = "split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w";
+        String bstr = "split1checkupstagehandshakeupstreamerranterredcaperred4m6xws";
 
         HrpAndDp hd = Bech32.decode(bstr);
         assertEquals("split", hd.getHrp());
 
         String enc = Bech32.encode(hd.getHrp(), hd.getDp());
-        assertEquals(bstr, enc, bstr);
+        assertEquals(bstr, enc);
 
     }
 
