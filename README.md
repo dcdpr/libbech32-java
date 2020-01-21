@@ -4,23 +4,6 @@ This is a Java implementation of "Bech32:" a checksummed base32 data
 encoding format. It is primarily used as a new bitcoin address format
 specified by [BIP 0173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki). 
 
-## Getting libbech32-java
-
-To use libbech32-java in your project, you can get
-the package from Maven Central:
-
-To use the package, you need the following Maven dependency:
-
-```xml
-<dependency>
-  <groupId>design.contract</groupId>
-  <artifactId>libbech32</artifactId>
-  <version>1.0.0</version>
-</dependency>
-```
-
-or download the jar from the Maven repository.
-
 The libbech32-java package has no external dependencies, except `JUnit` for testing.
 
 ## Usage Example
@@ -38,7 +21,7 @@ public class EncodingExample {
             String b = Bech32.encode(humanReadablePart, data);
 
             System.out.println(b);
-            // prints "hello1w0rld80pk3y" : "hello" + Bech32.separator + encoded data + 6 char checksum
+            // prints "hello1w0rldcs7fw6" : "hello" + Bech32.separator + encoded data + 6 char checksum
     }
 }
 ```

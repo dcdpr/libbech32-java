@@ -2,7 +2,6 @@ package design.contract.bech32;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public interface Bech32 {
 
@@ -119,9 +118,8 @@ public interface Bech32 {
             char[] buf = new char[hrpLen * 2 + 1];
             for(int i = 0; i < hrpLen; i++) {
                 char c = hrp.charAt(i);
-                int ci = (int) c;
-                buf[i] = (char)(ci >> 5);
-                buf[i + hrpLen + 1] = (char)(ci & 0x1f);
+                buf[i] = (char)((int) c >> 5);
+                buf[i + hrpLen + 1] = (char)((int) c & 0x1f);
             }
             buf[hrpLen] = 0;
             return new String(buf);
@@ -153,7 +151,7 @@ public interface Bech32 {
 
         // verify the checksum on a Bech32 string
         static boolean verifyChecksum(final String hrp, final char[] dp) {
-            return polymod(cat(expandHrp(hrp).toCharArray(), dp)) == 1;
+            return polymod(cat(expandHrp(hrp).toCharArray(), dp)) == M;
         }
 
         // strip off the checksum from a Bech32 string
@@ -166,7 +164,7 @@ public interface Bech32 {
             char[] combined = cat(expandHrp(hrp).toCharArray(), dp);
             char[] expanded = Arrays.copyOf(combined, combined.length + limits.CHECKSUM_LENGTH);
 
-            long mod = polymod(expanded) ^ 1;
+            long mod = polymod(expanded) ^ M;
             char[] ret = new char[limits.CHECKSUM_LENGTH];
             for(int i = 0; i < limits.CHECKSUM_LENGTH; ++i) {
                 ret[i] = (char)((mod >> (5 * (5 - i))) & 31);
@@ -206,12 +204,14 @@ public interface Bech32 {
             }
         }
 
-
-
     }
 
     // The Bech32 separator character
     char separator = '1';
+
+    // exponent used in checksum generation, taken from recommendation
+    // in: https://gist.github.com/sipa/a9845b37c1b298a7301c33a04090b2eb
+    int M = 0x3FFFFFFF;
 
     /* The Bech32 character set for encoding. The index into this string gives the char
      * each value is mapped to, i.e., 0 -> 'q', 10 -> '2', etc. This comes from the table
