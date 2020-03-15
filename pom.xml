@@ -6,73 +6,183 @@
 
     <groupId>design.contract</groupId>
     <artifactId>libbech32</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.0</version>
+
+    <packaging>jar</packaging>
+
+    <name>libbech32-java</name>
+    <description>Java implementation of "Bech32:" a checksummed base32 data encoding format</description>
+    <url>https://github.com/dcdpr/libbech32-java</url>
+
+    <scm>
+      <url>https://github.com/dcdpr/libbech32-java</url>
+    </scm>
+
+    <organization>
+      <name>Digital Contract Design, LLC</name>
+      <url>https://contract.design</url>
+    </organization>
+
+    <developers>
+      <developer>
+        <name>Digital Contract Design</name>
+        <email>info@contract.design</email>
+        <organization>Digital Contract Design, LLC</organization>
+        <organizationUrl>https://contract.design</organizationUrl>
+      </developer>
+    </developers>
+
+    <licenses>
+      <license>
+        <name>BSD 3-Clause "New" or "Revised" License</name>
+        <url>https://opensource.org/licenses/BSD-3-Clause</url>
+        <distribution>repo</distribution>
+      </license>
+    </licenses>
 
     <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <distributionManagement>
+      <snapshotRepository>
+        <id>ossrh</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      </snapshotRepository>
+    </distributionManagement>
+
     <build>
-        <plugins>
+      <plugins>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+          <configuration>
+            <source>8</source>
+            <target>8</target>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.8.5</version>
+          <executions>
+            <execution>
+              <id>default-prepare-agent</id>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>default-report</id>
+              <goals>
+                <goal>report</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>default-check</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <rule>
+                    <element>BUNDLE</element>
+                    <limits>
+                      <limit>
+                        <counter>COMPLEXITY</counter>
+                        <value>COVEREDRATIO</value>
+                        <minimum>0.60</minimum>
+                      </limit>
+                    </limits>
+                  </rule>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+      </plugins>
+    </build>
+
+    <profiles>
+      <profile>
+        <id>release</id>
+        <build>
+          <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-              <groupId>org.jacoco</groupId>
-              <artifactId>jacoco-maven-plugin</artifactId>
-              <version>0.8.5</version>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <version>3.2.1</version>
               <executions>
                 <execution>
-                  <id>default-prepare-agent</id>
+                  <id>attach-sources</id>
                   <goals>
-                    <goal>prepare-agent</goal>
+                    <goal>jar-no-fork</goal>
                   </goals>
-                </execution>
-                <execution>
-                  <id>default-report</id>
-                  <goals>
-                    <goal>report</goal>
-                  </goals>
-                </execution>
-                <execution>
-                  <id>default-check</id>
-                  <goals>
-                    <goal>check</goal>
-                  </goals>
-                  <configuration>
-                    <rules>
-                      <rule>
-                        <element>BUNDLE</element>
-                        <limits>
-                          <limit>
-                            <counter>COMPLEXITY</counter>
-                            <value>COVEREDRATIO</value>
-                            <minimum>0.60</minimum>
-                          </limit>
-                        </limits>
-                      </rule>
-                    </rules>
-                  </configuration>
                 </execution>
               </executions>
             </plugin>
-        </plugins>
-    </build>
+
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>3.1.1</version>
+              <configuration>
+                <source>8</source>
+              </configuration>
+              <executions>
+                <execution>
+                  <id>attach-javadocs</id>
+                  <goals>
+                    <goal>jar</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+
+            <plugin>
+              <groupId>org.sonatype.plugins</groupId>
+              <artifactId>nexus-staging-maven-plugin</artifactId>
+              <version>1.6.8</version>
+              <extensions>true</extensions>
+              <configuration>
+                <serverId>ossrh</serverId>
+                <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                <autoReleaseAfterClose>false</autoReleaseAfterClose>
+              </configuration>
+            </plugin>
+
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-gpg-plugin</artifactId>
+              <version>1.6</version>
+              <executions>
+                <execution>
+                  <id>sign-artifacts</id>
+                  <phase>verify</phase>
+                  <goals>
+                    <goal>sign</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+
+          </plugins>
+
+        </build>
+      </profile>
+    </profiles>
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
-
 
 </project>
