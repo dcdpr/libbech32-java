@@ -11,8 +11,8 @@ public class Bech32EncodingExample {
         String b = Bech32.encode(humanReadablePart, data);
 
         System.out.println(b);
-        // prints "hello16s3sxm" :
-        //   "hello" + Bech32.separator ('1') + encoded data (none) + 6 char checksum ("6s3sxm")
+        // prints "hello1sn7ru8" :
+        //   "hello" + Bech32.SEPARATOR ('1') + encoded data (none) + 6 char checksum ("sn7ru8")
     }
 
     private static void simpleHrp_WithData() {
@@ -22,8 +22,8 @@ public class Bech32EncodingExample {
         String b = Bech32.encode(humanReadablePart, data);
 
         System.out.println(b);
-        // prints "hello1w0rldcs7fw6" :
-        //   "hello" + Bech32.separator ('1') + encoded data ("w0rld") + 6 char checksum ("cs7fw6")
+        // prints "hello1w0rldjn365x" :
+        //   "hello" + Bech32.SEPARATOR ('1') + encoded data ("w0rld") + 6 char checksum ("jn365x")
     }
 
     public static void main(String[] args) {

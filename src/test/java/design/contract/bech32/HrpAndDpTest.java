@@ -37,6 +37,21 @@ public class HrpAndDpTest {
     }
 
     @Test
+    public void getEncoding() {
+        HrpAndDp.Encoding expected = HrpAndDp.Encoding.UNKNOWN;
+        HrpAndDp hrpAndDp = new HrpAndDp("hello", null);
+        assertEquals(expected, hrpAndDp.getEncoding());
+    }
+
+    @Test
+    public void setEncoding() {
+        HrpAndDp.Encoding expected = HrpAndDp.Encoding.BECH32M;
+        HrpAndDp hrpAndDp = new HrpAndDp("hello", null);
+        hrpAndDp.setEncoding(HrpAndDp.Encoding.BECH32M);
+        assertEquals(expected, hrpAndDp.getEncoding());
+    }
+
+    @Test
     public void testEquals_Reflexive() {
         char[] dp = {0,1,2};
         HrpAndDp a = new HrpAndDp("a", dp);

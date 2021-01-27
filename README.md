@@ -17,7 +17,7 @@ To use the package, you need the following Maven dependency:
 <dependency>
   <groupId>design.contract</groupId>
   <artifactId>libbech32</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -38,7 +38,7 @@ public class EncodingExample {
             String b = Bech32.encode(humanReadablePart, data);
 
             System.out.println(b);
-            // prints "hello1w0rldcs7fw6" : "hello" + Bech32.separator + encoded data + 6 char checksum
+            // prints "hello1w0rldjn365x" : "hello" + Bech32.SEPARATOR + encoded data + 6 char checksum
     }
 }
 ```
