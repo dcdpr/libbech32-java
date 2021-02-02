@@ -236,7 +236,7 @@ public class Bech32 {
     }
 
     // The Bech32 separator character
-    static final char SEPARATOR = '1';
+    public static final char SEPARATOR = '1';
 
     // exponent used in checksum generation, taken from recommendation
     // in: https://github.com/sipa/bips/blob/bip-bech32m/bip-bech32m.mediawiki

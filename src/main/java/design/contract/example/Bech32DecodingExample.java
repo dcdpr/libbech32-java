@@ -14,6 +14,7 @@ public class Bech32DecodingExample {
 
         assert hd.getHrp().equals("hello");
         assert hd.getDp().length == 0;
+        assert hd.getEncoding() == HrpAndDp.Encoding.BECH32M;
     }
 
     private static void simpleHrp_WithData() {
@@ -30,6 +31,7 @@ public class Bech32DecodingExample {
         assert hd.getDp()[2] == 3;
         assert hd.getDp()[3] == 31;
         assert hd.getDp()[4] == 13;
+        assert hd.getEncoding() == HrpAndDp.Encoding.BECH32M;
     }
 
     public static void main(String[] args) {
