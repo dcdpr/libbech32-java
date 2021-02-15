@@ -92,11 +92,11 @@ public class Bech32 {
         }
 
         // split the hrp from the dp at the separator character
-        static HrpAndDp splitString(final String bstring) {
+        static DecodedResult splitString(final String bstring) {
             int pos = findSeparatorPosition(bstring);
             String hrp = bstring.substring(0, pos);
             String dpstr = bstring.substring(pos+1);
-            return new HrpAndDp(hrp, dpstr.toCharArray());
+            return new DecodedResult(hrp, dpstr.toCharArray());
         }
 
         // dp needs to be mapped using the charset_rev table
@@ -327,28 +327,28 @@ public class Bech32 {
     }
 
     // decode a bech32 string, returning the "human-readable part" and a "data part"
-    public static HrpAndDp decode(final String bstring) {
+    public static DecodedResult decode(final String bstring) {
         Objects.requireNonNull(bstring);
 
         Impl.rejectBStringThatIsntWellFormed(bstring);
-        HrpAndDp b = Impl.splitString(bstring);
-        Impl.rejectHRPTooShort(b.getHrp());
-        Impl.rejectHRPTooLong(b.getHrp());
-        Impl.rejectDPTooShort(b.getDp());
-        b.setHrp(b.getHrp().toLowerCase());
-        Impl.mapDP(b.getDp());
-        if (Impl.verifyChecksum(b.getHrp(), b.getDp())) {
-            b.setDp(Impl.stripChecksum(new String(b.getDp())).toCharArray());
-            b.setEncoding(HrpAndDp.Encoding.BECH32M);
-            return b;
+        DecodedResult decodedResult = Impl.splitString(bstring);
+        Impl.rejectHRPTooShort(decodedResult.getHrp());
+        Impl.rejectHRPTooLong(decodedResult.getHrp());
+        Impl.rejectDPTooShort(decodedResult.getDp());
+        decodedResult.setHrp(decodedResult.getHrp().toLowerCase());
+        Impl.mapDP(decodedResult.getDp());
+        if (Impl.verifyChecksum(decodedResult.getHrp(), decodedResult.getDp())) {
+            decodedResult.setDp(Impl.stripChecksum(new String(decodedResult.getDp())).toCharArray());
+            decodedResult.setEncoding(DecodedResult.Encoding.BECH32M);
+            return decodedResult;
         }
-        else if (Impl.verifyChecksumUsingOriginalConstant(b.getHrp(), b.getDp())) {
-            b.setDp(Impl.stripChecksum(new String(b.getDp())).toCharArray());
-            b.setEncoding(HrpAndDp.Encoding.BECH32);
-            return b;
+        else if (Impl.verifyChecksumUsingOriginalConstant(decodedResult.getHrp(), decodedResult.getDp())) {
+            decodedResult.setDp(Impl.stripChecksum(new String(decodedResult.getDp())).toCharArray());
+            decodedResult.setEncoding(DecodedResult.Encoding.BECH32);
+            return decodedResult;
         }
         else {
-            return new HrpAndDp();
+            return new DecodedResult();
         }
 
     }

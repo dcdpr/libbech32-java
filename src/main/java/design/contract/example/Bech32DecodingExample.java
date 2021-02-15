@@ -1,7 +1,7 @@
 package design.contract.example;
 
 import design.contract.bech32.Bech32;
-import design.contract.bech32.HrpAndDp;
+import design.contract.bech32.DecodedResult;
 
 public class Bech32DecodingExample {
 
@@ -10,11 +10,11 @@ public class Bech32DecodingExample {
         // no data part
         String bString = "hello1sn7ru8";
 
-        HrpAndDp hd = Bech32.decode(bString);
+        DecodedResult decodedResult = Bech32.decode(bString);
 
-        assert hd.getHrp().equals("hello");
-        assert hd.getDp().length == 0;
-        assert hd.getEncoding() == HrpAndDp.Encoding.BECH32M;
+        assert decodedResult.getHrp().equals("hello");
+        assert decodedResult.getDp().length == 0;
+        assert decodedResult.getEncoding() == DecodedResult.Encoding.BECH32M;
     }
 
     private static void simpleHrp_WithData() {
@@ -22,16 +22,16 @@ public class Bech32DecodingExample {
         // a data part which encodes to "w0rld"
         String bString = "hello1w0rldjn365x";
 
-        HrpAndDp hd = Bech32.decode(bString);
+        DecodedResult decodedResult = Bech32.decode(bString);
 
-        assert hd.getHrp().equals("hello");
-        assert hd.getDp().length == 5;
-        assert hd.getDp()[0] == 14;
-        assert hd.getDp()[1] == 15;
-        assert hd.getDp()[2] == 3;
-        assert hd.getDp()[3] == 31;
-        assert hd.getDp()[4] == 13;
-        assert hd.getEncoding() == HrpAndDp.Encoding.BECH32M;
+        assert decodedResult.getHrp().equals("hello");
+        assert decodedResult.getDp().length == 5;
+        assert decodedResult.getDp()[0] == 14;
+        assert decodedResult.getDp()[1] == 15;
+        assert decodedResult.getDp()[2] == 3;
+        assert decodedResult.getDp()[3] == 31;
+        assert decodedResult.getDp()[4] == 13;
+        assert decodedResult.getEncoding() == DecodedResult.Encoding.BECH32M;
     }
 
     public static void main(String[] args) {

@@ -3,16 +3,16 @@ package design.contract.bech32;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class HrpAndDp {
+public class DecodedResult {
     private String hrp;
     private char[] dp;
     private Encoding encoding;
 
-    public HrpAndDp() {
+    public DecodedResult() {
         this.encoding = Encoding.UNKNOWN;
     }
 
-    public HrpAndDp(String hrp, char[] dp) {
+    public DecodedResult(String hrp, char[] dp) {
         this.hrp = hrp;
         this.dp = dp;
         this.encoding = Encoding.UNKNOWN;
@@ -48,10 +48,10 @@ public class HrpAndDp {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        HrpAndDp hrpAndDp = (HrpAndDp) o;
-        return hrp.equals(hrpAndDp.hrp) &&
-                Arrays.equals(dp, hrpAndDp.dp) &&
-                encoding == hrpAndDp.encoding;
+        DecodedResult decodedResult = (DecodedResult) o;
+        return hrp.equals(decodedResult.hrp) &&
+                Arrays.equals(dp, decodedResult.dp) &&
+                encoding == decodedResult.encoding;
     }
 
     @Override
