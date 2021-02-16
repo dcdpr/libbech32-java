@@ -38,7 +38,7 @@ public class DecodedResultTest {
 
     @Test
     public void getEncoding() {
-        DecodedResult.Encoding expected = DecodedResult.Encoding.UNKNOWN;
+        DecodedResult.Encoding expected = DecodedResult.Encoding.INVALID;
         DecodedResult decodedResult = new DecodedResult("hello", null);
         assertEquals(expected, decodedResult.getEncoding());
     }
