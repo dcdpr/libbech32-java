@@ -4,8 +4,8 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static design.contract.bech32.HrpAndDp.Encoding.BECH32;
-import static design.contract.bech32.HrpAndDp.Encoding.BECH32M;
+import static design.contract.bech32.DecodedResult.Encoding.BECH32;
+import static design.contract.bech32.DecodedResult.Encoding.BECH32M;
 import static org.junit.Assert.*;
 
 public class Bech32Test {
@@ -39,6 +39,7 @@ public class Bech32Test {
     @Test()
     public void rejectBStringTooShort_withLongString_wontThrow() {
         Bech32.Impl.rejectBStringTooShort("aceaceace");
+        return;
     }
 
     @Test()
@@ -129,64 +130,83 @@ public class Bech32Test {
     }
 
     @Test(expected = StringIndexOutOfBoundsException.class)
-    public void splitString_withEmptyString_throws() {
-        HrpAndDp hd = Bech32.Impl.splitString("");
+    public void extractHumanReadablePart_withEmptyString_throws() {
+        Bech32.Impl.extractHumanReadablePart("");
     }
 
     @Test
-    public void splitString_withOnlySeparator_returnsEmptyStrings() {
-        HrpAndDp hd = Bech32.Impl.splitString("1");
-        assertEquals("", hd.getHrp());
-        assertEquals(0, hd.getDp().length);
+    public void extractHumanReadablePart_withOnlySeparator_returnsEmptyString() {
+        String hrp = Bech32.Impl.extractHumanReadablePart("1");
+        assertEquals("", hrp);
     }
 
     @Test
-    public void splitString_withSeparatorAtStart_returnsOneString() {
-        HrpAndDp hd = Bech32.Impl.splitString("1ab");
-        assertEquals("", hd.getHrp());
-        assertEquals(2, hd.getDp().length);
-        assertEquals('a', hd.getDp()[0]);
-        assertEquals('b', hd.getDp()[1]);
+    public void extractHumanReadablePart_withSeparatorAtEnd_returnsString() {
+        String hrp = Bech32.Impl.extractHumanReadablePart("ab1");
+        assertEquals("ab", hrp);
     }
 
     @Test
-    public void splitString_withSeparatorAtEnd_returnsOneString() {
-        HrpAndDp hd = Bech32.Impl.splitString("ab1");
-        assertEquals("ab", hd.getHrp());
-        assertEquals(0, hd.getDp().length);
+    public void extractHumanReadablePart_withSeparatorInMiddle_returnsString() {
+        String hrp = Bech32.Impl.extractHumanReadablePart("ab1cd");
+        assertEquals("ab", hrp);
+    }
+
+    public void extractDataPartwithEmptyString_returnsEmptyArray() {
+        char[] dp = Bech32.Impl.extractDataPart("");
+        assertEquals(0, dp.length);
     }
 
     @Test
-    public void splitString_withSeparatorInMiddle_returnsTwoStrings() {
-        HrpAndDp hd = Bech32.Impl.splitString("ab1cd");
-        assertEquals("ab", hd.getHrp());
-        assertEquals(2, hd.getDp().length);
-        assertEquals('c', hd.getDp()[0]);
-        assertEquals('d', hd.getDp()[1]);
+    public void extractDataPart_withOnlySeparator_returnsEmptyArray() {
+        char[] dp = Bech32.Impl.extractDataPart("1");
+        assertEquals(0, dp.length);
+    }
+
+    @Test
+    public void extractDataPart_withSeparatorAtStart_returnsArray() {
+        char[] dp = Bech32.Impl.extractDataPart("1ab");
+        assertEquals(2, dp.length);
+        assertEquals('a', dp[0]);
+        assertEquals('b', dp[1]);
+    }
+
+    @Test
+    public void extractDataPart_withSeparatorAtEnd_returnsEmptyArray() {
+        char[] dp = Bech32.Impl.extractDataPart("ab1");
+        assertEquals(0, dp.length);
+    }
+
+    @Test
+    public void extractDataPart_withSeparatorInMiddle_returnsArray() {
+        char[] dp = Bech32.Impl.extractDataPart("ab1cd");
+        assertEquals(2, dp.length);
+        assertEquals('c', dp[0]);
+        assertEquals('d', dp[1]);
     }
 
     @Test
     public void mapDP_withLowercaseData() {
-        HrpAndDp b = Bech32.Impl.splitString("1acd");
-        Bech32.Impl.mapDP(b.getDp());
-        assertEquals(0x001d, b.getDp()[0]);
-        assertEquals(0x0018, b.getDp()[1]);
-        assertEquals(0x000d, b.getDp()[2]);
+        char[] dp = Bech32.Impl.extractDataPart("1acd");
+        Bech32.Impl.mapDP(dp);
+        assertEquals(0x001d, dp[0]);
+        assertEquals(0x0018, dp[1]);
+        assertEquals(0x000d, dp[2]);
     }
 
     @Test
     public void mapDP_withUppercaseData() {
-        HrpAndDp b = Bech32.Impl.splitString("1ACD");
-        Bech32.Impl.mapDP(b.getDp());
-        assertEquals(0x001d, b.getDp()[0]);
-        assertEquals(0x0018, b.getDp()[1]);
-        assertEquals(0x000d, b.getDp()[2]);
+        char[] dp = Bech32.Impl.extractDataPart("1ACD");
+        Bech32.Impl.mapDP(dp);
+        assertEquals(0x001d, dp[0]);
+        assertEquals(0x0018, dp[1]);
+        assertEquals(0x000d, dp[2]);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void mapDP_withInvalidData_throws() {
-        HrpAndDp b = Bech32.Impl.splitString("1abc"); // 'b' is invalid
-        Bech32.Impl.mapDP(b.getDp());
+        char[] dp = Bech32.Impl.extractDataPart("1abc"); // 'b' is invalid
+        Bech32.Impl.mapDP(dp);
     }
 
     @Test
@@ -229,46 +249,58 @@ public class Bech32Test {
 
     @Test
     public void verifyChecksum_withShortHrp_noData_isGood() {
-        HrpAndDp b = Bech32.Impl.splitString("a1lqfn3a");
-        Bech32.Impl.mapDP(b.getDp());
-        assertTrue(Bech32.Impl.verifyChecksum(b.getHrp(), b.getDp()));
+        String bstring = "a1lqfn3a";
+        String hrp = Bech32.Impl.extractHumanReadablePart(bstring);
+        char[] dp = Bech32.Impl.extractDataPart(bstring);
+        Bech32.Impl.mapDP(dp);
+        assertTrue(Bech32.Impl.verifyChecksum(hrp, dp));
     }
 
     @Test
     public void verifyChecksum_c1_withShortHrp_noData_isGood() {
-        HrpAndDp b = Bech32.Impl.splitString("a12uel5l");
-        Bech32.Impl.mapDP(b.getDp());
-        assertTrue(Bech32.Impl.verifyChecksumUsingOriginalConstant(b.getHrp(), b.getDp()));
+        String bstring = "a12uel5l";
+        String hrp = Bech32.Impl.extractHumanReadablePart(bstring);
+        char[] dp = Bech32.Impl.extractDataPart(bstring);
+        Bech32.Impl.mapDP(dp);
+        assertTrue(Bech32.Impl.verifyChecksumUsingOriginalConstant(hrp, dp));
     }
 
     @Test
     public void verifyChecksum_withLongerHrp_longData_isGood() {
-        HrpAndDp b = Bech32.Impl.splitString("abcdef1l7aum6echk45nj3s0wdvt2fg8x9yrzpqzd3ryx");
-        Bech32.Impl.mapDP(b.getDp());
-        assertTrue(Bech32.Impl.verifyChecksum(b.getHrp(), b.getDp()));
+        String bstring = "abcdef1l7aum6echk45nj3s0wdvt2fg8x9yrzpqzd3ryx";
+        String hrp = Bech32.Impl.extractHumanReadablePart(bstring);
+        char[] dp = Bech32.Impl.extractDataPart(bstring);
+        Bech32.Impl.mapDP(dp);
+        assertTrue(Bech32.Impl.verifyChecksum(hrp, dp));
     }
 
     @Test
     public void verifyChecksum_c1_withLongerHrp_longData_isGood() {
-        HrpAndDp b = Bech32.Impl.splitString("abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw");
-        Bech32.Impl.mapDP(b.getDp());
-        assertTrue(Bech32.Impl.verifyChecksumUsingOriginalConstant(b.getHrp(), b.getDp()));
+        String bstring = "abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw";
+        String hrp = Bech32.Impl.extractHumanReadablePart(bstring);
+        char[] dp = Bech32.Impl.extractDataPart(bstring);
+        Bech32.Impl.mapDP(dp);
+        assertTrue(Bech32.Impl.verifyChecksumUsingOriginalConstant(hrp, dp));
     }
 
     @Test
     public void verifyChecksum_withShortHrp_noData_isBad() {
-        // this is "bad" because one character from above is changed
-        HrpAndDp b = Bech32.Impl.splitString("b12uel5l");
-        Bech32.Impl.mapDP(b.getDp());
-        assertFalse(Bech32.Impl.verifyChecksum(b.getHrp(), b.getDp()));
+        // this is "bad" because one character from above test is changed
+        String bstring = "b12uel5l";
+        String hrp = Bech32.Impl.extractHumanReadablePart(bstring);
+        char[] dp = Bech32.Impl.extractDataPart(bstring);
+        Bech32.Impl.mapDP(dp);
+        assertFalse(Bech32.Impl.verifyChecksum(hrp, dp));
     }
 
     @Test
     public void verifyChecksum_withLongerHrp_longData_isBad() {
-        // this is "bad" because one character from above is changed
-        HrpAndDp b = Bech32.Impl.splitString("abcdeg1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw");
-        Bech32.Impl.mapDP(b.getDp());
-        assertFalse(Bech32.Impl.verifyChecksum(b.getHrp(), b.getDp()));
+        // this is "bad" because one character from above test is changed
+        String bstring = "abcdeg1l7aum6echk45nj3s0wdvt2fg8x9yrzpqzd3ryx";
+        String hrp = Bech32.Impl.extractHumanReadablePart(bstring);
+        char[] dp = Bech32.Impl.extractDataPart(bstring);
+        Bech32.Impl.mapDP(dp);
+        assertFalse(Bech32.Impl.verifyChecksum(hrp, dp));
     }
 
     @Test(expected = StringIndexOutOfBoundsException.class)
@@ -339,18 +371,18 @@ public class Bech32Test {
 
     @Test(expected = NullPointerException.class)
     public void decode_nullString_throws() {
-        HrpAndDp hd = Bech32.decode(null);
+        Bech32.decode(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void decode_emptyString_throws() {
-        HrpAndDp hd = Bech32.decode("");
+        Bech32.decode("");
     }
 
     @Test
     public void decode_stringTooShort_throws() {
         try {
-            HrpAndDp hd = Bech32.decode("a");
+            Bech32.decode("a");
         } catch(IllegalArgumentException e) {
             assertEquals("bech32 string too short", e.getMessage());
         }
@@ -359,7 +391,7 @@ public class Bech32Test {
     @Test
     public void decode_stringTooLong_throws() {
         try {
-            HrpAndDp hd = Bech32.decode("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            Bech32.decode("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         } catch(IllegalArgumentException e) {
             assertEquals("bech32 string too long", e.getMessage());
         }
@@ -368,7 +400,7 @@ public class Bech32Test {
     @Test
     public void decode_stringMixedCase_throws() {
         try {
-            HrpAndDp hd = Bech32.decode("aAaaaaaaaaaaaaaaaa");
+            Bech32.decode("aAaaaaaaaaaaaaaaaa");
         } catch(IllegalArgumentException e) {
             assertEquals("bech32 string is mixed case", e.getMessage());
         }
@@ -377,14 +409,14 @@ public class Bech32Test {
     @Test
     public void decode_stringValuesOutOfRange_throws() {
         try {
-            HrpAndDp hd = Bech32.decode("a aaaaaaaaaaaaaaaa");
+            Bech32.decode("a aaaaaaaaaaaaaaaa");
         } catch(IllegalArgumentException e) {
             assertEquals("bech32 string has value out of range", e.getMessage());
         }
         try {
             String s = "aaaa" + '\u0127' + "aaaa";
 
-            HrpAndDp hd = Bech32.decode(s);
+            Bech32.decode(s);
         } catch(IllegalArgumentException e) {
             assertEquals("bech32 string has value out of range", e.getMessage());
         }
@@ -393,7 +425,7 @@ public class Bech32Test {
     @Test
     public void decode_stringNoSeparator_throws() {
         try {
-            HrpAndDp hd = Bech32.decode("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            Bech32.decode("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         } catch(IllegalArgumentException e) {
             assertEquals("bech32 string is missing separator character", e.getMessage());
         }
@@ -402,7 +434,7 @@ public class Bech32Test {
     @Test
     public void decode_stringHrpTooShort_throws() {
         try {
-            HrpAndDp hd = Bech32.decode("1aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            Bech32.decode("1aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         } catch(IllegalArgumentException e) {
             assertEquals("HRP must be at least one character", e.getMessage());
         }
@@ -411,7 +443,7 @@ public class Bech32Test {
     @Test
     public void decode_stringHrpTooLong_throws() {
         try {
-            HrpAndDp hd = Bech32.decode("an84characterlonghumanreadablepartaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1a");
+            Bech32.decode("an84characterlonghumanreadablepartaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1a");
         } catch(IllegalArgumentException e) {
             assertEquals("HRP must be less than 84 characters", e.getMessage());
         }
@@ -420,7 +452,7 @@ public class Bech32Test {
     @Test
     public void decode_stringDataPartTooShort_throws() {
         try {
-            HrpAndDp hd = Bech32.decode("a33characterlonghumanreadablepart1a");
+            Bech32.decode("a33characterlonghumanreadablepart1a");
         } catch(IllegalArgumentException e) {
             assertEquals("data part must be at least six characters", e.getMessage());
         }
@@ -429,7 +461,7 @@ public class Bech32Test {
     @Test
     public void decode_badChecksum_throws() {
         try {
-            HrpAndDp hd = Bech32.decode("a12uel5m");
+            Bech32.decode("a12uel5m");
         } catch(IllegalArgumentException e) {
             assertEquals("bech32 string has bad checksum", e.getMessage());
         }
@@ -437,48 +469,48 @@ public class Bech32Test {
 
     @Test
     public void decode_simple() {
-        HrpAndDp hd = Bech32.decode("a1lqfn3a");
-        assertEquals("a", hd.getHrp());
-        assertEquals(0, hd.getDp().length);
-        assertEquals(BECH32M, hd.getEncoding());
+        DecodedResult decodedResult = Bech32.decode("a1lqfn3a");
+        assertEquals("a", decodedResult.getHrp());
+        assertEquals(0, decodedResult.getDp().length);
+        assertEquals(BECH32M, decodedResult.getEncoding());
     }
 
     @Test
     public void decode_c1_simple() {
-        HrpAndDp hd = Bech32.decode("a12uel5l");
-        assertEquals("a", hd.getHrp());
-        assertEquals(0, hd.getDp().length);
-        assertEquals(BECH32, hd.getEncoding());
+        DecodedResult decodedResult = Bech32.decode("a12uel5l");
+        assertEquals("a", decodedResult.getHrp());
+        assertEquals(0, decodedResult.getDp().length);
+        assertEquals(BECH32, decodedResult.getEncoding());
     }
 
     @Test
     public void decode_longer() {
-        HrpAndDp hd = Bech32.decode("abcdef1l7aum6echk45nj3s0wdvt2fg8x9yrzpqzd3ryx");
-        assertEquals("abcdef", hd.getHrp());
-        assertEquals(32, hd.getDp().length);
-        assertEquals(0x001f, hd.getDp()[0]); // first 'l' in above data part
-        assertEquals(0x0000, hd.getDp()[31]);// last 'q' in above data part
-        assertEquals(BECH32M, hd.getEncoding());
+        DecodedResult decodedResult = Bech32.decode("abcdef1l7aum6echk45nj3s0wdvt2fg8x9yrzpqzd3ryx");
+        assertEquals("abcdef", decodedResult.getHrp());
+        assertEquals(32, decodedResult.getDp().length);
+        assertEquals(0x001f, decodedResult.getDp()[0]); // first 'l' in above data part
+        assertEquals(0x0000, decodedResult.getDp()[31]);// last 'q' in above data part
+        assertEquals(BECH32M, decodedResult.getEncoding());
     }
 
     @Test
     public void decode_c1_longer() {
-        HrpAndDp hd = Bech32.decode("abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw");
-        assertEquals("abcdef", hd.getHrp());
-        assertEquals(32, hd.getDp().length);
-        assertEquals(0x0000, hd.getDp()[0]); // first 'q' in above data part
-        assertEquals(0x001f, hd.getDp()[31]);// last 'l' in above data part
-        assertEquals(BECH32, hd.getEncoding());
+        DecodedResult decodedResult = Bech32.decode("abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw");
+        assertEquals("abcdef", decodedResult.getHrp());
+        assertEquals(32, decodedResult.getDp().length);
+        assertEquals(0x0000, decodedResult.getDp()[0]); // first 'q' in above data part
+        assertEquals(0x001f, decodedResult.getDp()[31]);// last 'l' in above data part
+        assertEquals(BECH32, decodedResult.getEncoding());
     }
 
     @Test
     public void decodeThenEncode_givesInitialData_long() {
         String bstr = "abcdef1l7aum6echk45nj3s0wdvt2fg8x9yrzpqzd3ryx";
 
-        HrpAndDp hd = Bech32.decode(bstr);
-        assertEquals("abcdef", hd.getHrp());
+        DecodedResult decodedResult = Bech32.decode(bstr);
+        assertEquals("abcdef", decodedResult.getHrp());
 
-        String enc = Bech32.encode(hd.getHrp(), hd.getDp());
+        String enc = Bech32.encode(decodedResult.getHrp(), decodedResult.getDp());
         assertEquals(bstr, enc);
     }
 
@@ -486,10 +518,10 @@ public class Bech32Test {
     public void decodeThenEncode_c1_givesInitialData_long() {
         String bstr = "abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw";
 
-        HrpAndDp hd = Bech32.decode(bstr);
-        assertEquals("abcdef", hd.getHrp());
+        DecodedResult decodedResult = Bech32.decode(bstr);
+        assertEquals("abcdef", decodedResult.getHrp());
 
-        String enc = Bech32.encodeUsingOriginalConstant(hd.getHrp(), hd.getDp());
+        String enc = Bech32.encodeUsingOriginalConstant(decodedResult.getHrp(), decodedResult.getDp());
         assertEquals(bstr, enc);
     }
 
@@ -497,20 +529,20 @@ public class Bech32Test {
     public void decodeThenEncode_givesInitialData_longer() {
         String bstr = "split1checkupstagehandshakeupstreamerranterredcaperredlc445v";
 
-        HrpAndDp hd = Bech32.decode(bstr);
-        assertEquals("split", hd.getHrp());
+        DecodedResult decodedResult = Bech32.decode(bstr);
+        assertEquals("split", decodedResult.getHrp());
 
-        String enc = Bech32.encode(hd.getHrp(), hd.getDp());
+        String enc = Bech32.encode(decodedResult.getHrp(), decodedResult.getDp());
         assertEquals(bstr, enc);
     }
     @Test
     public void decodeThenEncode_c1_givesInitialData_longer() {
         String bstr = "split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w";
 
-        HrpAndDp hd = Bech32.decode(bstr);
-        assertEquals("split", hd.getHrp());
+        DecodedResult decodedResult = Bech32.decode(bstr);
+        assertEquals("split", decodedResult.getHrp());
 
-        String enc = Bech32.encodeUsingOriginalConstant(hd.getHrp(), hd.getDp());
+        String enc = Bech32.encodeUsingOriginalConstant(decodedResult.getHrp(), decodedResult.getDp());
         assertEquals(bstr, enc);
     }
 
