@@ -23,7 +23,9 @@ To use the package, you need the following Maven dependency:
 
 or download the jar from the Maven repository.
 
-## Usage Example
+## Usage Examples
+
+### Encoding Example
 
 ```java
 import design.contract.bech32.Bech32;
@@ -40,7 +42,20 @@ public class EncodingExample {
         System.out.println(b);
         // prints "hello1w0rldjn365x" : "hello" + Bech32.SEPARATOR + encoded data + 6 char checksum
 
-        DecodedResult decodedResult = Bech32.decode(b);
+    }
+}
+```
+
+### Decoding Example
+
+```java
+import design.contract.bech32.Bech32;
+
+public class DecodingExample {
+
+    public static void main(String[] args) {
+        
+        DecodedResult decodedResult = Bech32.decode("hello1w0rldjn365x");
 
         assert decodedResult.getHrp().equals("hello");
         assert decodedResult.getDp().length == 5;
@@ -92,5 +107,3 @@ of 1 is desired, then the following function may be used:
 
     /// ... as above ...
 ```
-
-
