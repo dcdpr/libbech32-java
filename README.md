@@ -41,7 +41,6 @@ public class EncodingExample {
 
         System.out.println(b);
         // prints "hello1w0rldjn365x" : "hello" + Bech32.SEPARATOR + encoded data + 6 char checksum
-
     }
 }
 ```
@@ -87,15 +86,15 @@ mvn test
 
 The Bech32 data encoding format was first proposed by Pieter Wuille in early 2017 in
 [BIP 0173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki). Later, in November 2019, Pieter published
-some research regarding that an exponent used in the bech32 checksum algorithm (value = 1) may not be
+some research that a constant used in the bech32 checksum algorithm (value = 1) may not be
 optimal for the error detecting properties of bech32. In February 2021, Pieter published
-[BIP 0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) reporting that "exhaustive analysis" showed the best possible exponent value is
+[BIP 0350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) reporting that "exhaustive analysis" showed the best possible constant value is
 0x2bc830a3. This improved variant of Bech32 is called "Bech32m".
 
 When decoding a possible bech32 encoded string, libbech32 returns an enum value showing whether bech32m or bech32
 was used to encode. This can be seen in the example above.
 
-When encoding data, libbech32 defaults to using the new exponent value of 0x2bc830a3. If the original exponent value
+When encoding data, libbech32 defaults to using the new constant value of 0x2bc830a3. If the original constant value
 of 1 is desired, then the following function may be used:
 
 ### Usage Example

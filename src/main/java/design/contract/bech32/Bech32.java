@@ -242,7 +242,7 @@ public class Bech32 {
     // The Bech32 separator character
     public static final char SEPARATOR = '1';
 
-    // exponent used in checksum generation. see:
+    // constant used in checksum generation. see:
     // https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
     // https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki
     static final int M = 0x2bc830a3;
@@ -311,7 +311,7 @@ public class Bech32 {
 
         StringBuilder result = new StringBuilder(hrpCopy.length() + 1 + combined.length);
         result.append(hrpCopy);
-        result.append('1');
+        result.append(SEPARATOR);
 
         for (char c : combined) {
             if(c > Limits.VALID_CHARSET_SIZE - 1)
